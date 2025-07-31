@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>lost in translation</title>
+    <style>
+    .card {
+        padding: 1rem;
+        height: 10rem;
+    }
+
+    .cards {
+        display: grid;
+        gap: 1rem;
+        grid-template-columns: repeat(4, 1fr);
+        /* grid-template-rows: 1fr 1fr 1fr;
+        grid-auto-flow: column; */
+    }
+    </style>
+    </head>
+    <body>
+        <div class="cards">
+            <div class="card"><p>lost in translation</p></div>
+            <div class="1">Oh, my love<br>
+                If you're crazy like me,<br>
+                You'll throw away your jewelry,<br>
+                Sell all your bracelets,<br>
+                And sleep in my eyes.</div>
+            <div id="2" ></div>
+            <div id="3"></div>
+            <div id="4"></div>
+            <div id="5"></div>
+            <div id="6"></div>
+            <div id="7"></div>
+            <div id="8"></div>
+            <div id="9"></div>
+            <div id="10"></div>
+            <div id="11"></div>
+            <div id="12"></div>
+            <div id="13"></div>
+            <div id="14"></div>
+            <div id="15"></div>
+        </div>
+        <script>
+            // fetch('/api/poemgen').then(response => {return console.log(response.text())})
+            var counter = 2;
+            setInterval(() => {
+                // if (counter > 15) {
+                //     counter = 1
+                // }
+                (async () => {
+                    const response = await fetch('/api/poemgen');
+                    const body = await response.text()
+                    document.getElementById(counter).innerHTML = body;
+                    counter += 1;
+                })();
+                // console.log(body);
+                console.log(counter)
+                console.log(document.getElementById(counter))
+            }, 5000)
+        </script>
+    </body>
+    </html>
