@@ -8,10 +8,6 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
 });
 
-app.listen(8080, () => {
-  console.log("Server is listening to port 8080");
-});
-
 const lang = [
   "am",
   "ar",
@@ -116,4 +112,8 @@ app.post("/api/translate", async (req, res) => {
     console.error("Translation error:", error);
     res.status(500).json({ error: "Translation failed" });
   }
+});
+
+app.listen(process.env.PORT || 8080, () => {
+  console.log("Server is listening to port 8080");
 });
