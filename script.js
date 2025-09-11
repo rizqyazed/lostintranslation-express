@@ -86,37 +86,34 @@ async function translateText(text) {
     res = await translate.translate(res[0], "en");
     res[0] = res[0].replaceAll(/\r?\n/g, "\n").trim();
 
-    console.log(res[0]);
+    // console.log(res[0]);
     return res[0];
   } catch (error) {
     console.log(`Error at translateText --> ${error}`);
   }
 }
 
-//poem already devided by line + the other consecutive poems
-const list = [
-  "Oh, my love-\nIf you were at the level of my madness,\nYou would cast away your jewelry,\nSell all your bracelets,\nAnd sleep in my eyes.",
-];
+// Add middleware to parse JSON bodies
+app.use(express.json());
 
-app.get("/api/poemgen", async (req, res) => {
-  var transPoem = await translateText(list[list.length - 1]);
-  //   console.log("this is the poem\n", transPoem);
-  // console.log(list);
-  list.push(transPoem);
-  res.status(200).send(transPoem.replaceAll("\n", "<br>"));
-  // console.log(transPoem);
-  console.log(list);
-  //   res.status(200).send(list[0].replaceAll("\n", "<br>"));
-});
+app.post("/api/translate", async (req, res) => {
+  try {
+    const { text } = req.body;
+    if (!text) {
+      return res.status(400).json({ error: "Text is required" });
+    }
 
-const translateLoop = async () => {
-  for (let i = 1; i < 10; i++) {
-    let transPoem = await translateText(list[list.length - 1]);
-    console.log(await transPoem);
-    // document.getElementsByClassName("1").innerHTML = await transPoem;
-    // list.push(await transPoem);
+    const transPoem = await translateText(text);
+    const poemLines = transPoem
+      .split("\n")
+      .filter((line) => line.trim() !== "");
+
+    res.status(200).json({
+      poem: poemLines,
+      originalText: transPoem,
+    });
+  } catch (error) {
+    console.error("Translation error:", error);
+    res.status(500).json({ error: "Translation failed" });
   }
-  //   console.log("this is thew list after translations:", list);
-};
-
-// translateLoop();
+});

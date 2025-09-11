@@ -1,64 +1,128 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>lost in translation</title>
     <style>
-    .card {
+      .card {
         padding: 1rem;
         height: 10rem;
-    }
+        overflow: hidd;
+        font-size: 14px;
+        line-height: 1.4;
+      }
 
-    .cards {
+      .cards {
         display: grid;
         gap: 1rem;
         grid-template-columns: repeat(4, 1fr);
-        /* grid-template-rows: 1fr 1fr 1fr;
-        grid-auto-flow: column; */
-    }
+        padding: 1rem;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        background-color: #f5f5f5;
+      }
     </style>
-    </head>
-    <body>
-        <div class="cards">
-            <div class="card"><p>lost in translation</p></div>
-            <div class="1">Oh, my love<br>
-                If you're crazy like me,<br>
-                You'll throw away your jewelry,<br>
-                Sell all your bracelets,<br>
-                And sleep in my eyes.</div>
-            <div id="2" ></div>
-            <div id="3"></div>
-            <div id="4"></div>
-            <div id="5"></div>
-            <div id="6"></div>
-            <div id="7"></div>
-            <div id="8"></div>
-            <div id="9"></div>
-            <div id="10"></div>
-            <div id="11"></div>
-            <div id="12"></div>
-            <div id="13"></div>
-            <div id="14"></div>
-            <div id="15"></div>
+  </head>
+  <body>
+    <div class="cards">
+      <div class="card"><p>lost in translation</p></div>
+      <div id="1">
+        <div class="card">
+          <div>Oh, my love</div>
+          <div>If you're crazy like me,</div>
+          <div>You'll throw away your jewelry,</div>
+          <div>Sell all your bracelets,</div>
+          <div>And sleep in my eyes.</div>
         </div>
-        <script>
-            // fetch('/api/poemgen').then(response => {return console.log(response.text())})
-            var counter = 2;
-            setInterval(() => {
-                // if (counter > 15) {
-                //     counter = 1
-                // }
-                (async () => {
-                    const response = await fetch('/api/poemgen');
-                    const body = await response.text()
-                    document.getElementById(counter).innerHTML = body;
-                    counter += 1;
-                })();
-                // console.log(body);
-                console.log(counter)
-                console.log(document.getElementById(counter))
-            }, 5000)
-        </script>
-    </body>
-    </html>
+      </div>
+      <div id="2"></div>
+      <div id="3"></div>
+      <div id="4"></div>
+      <div id="5"></div>
+      <div id="6"></div>
+      <div id="7"></div>
+      <div id="8"></div>
+      <div id="9"></div>
+      <div id="10"></div>
+      <div id="11"></div>
+      <div id="12"></div>
+      <div id="13"></div>
+      <div id="14"></div>
+      <div id="15"></div>
+    </div>
+    <script>
+      // Client-side list that resets on page reload
+      const poemList = [
+        "Oh, my love\nIf you were at the level of my madness,\nYou would cast away your jewelry,\nSell all your bracelets,\nAnd sleep in my eyes.",
+      ];
+
+      var counter = 2;
+
+      setInterval(() => {
+        if (counter > 15) {
+          counter = 1; // Reset counter when reaching the end
+        }
+
+        (async () => {
+          try {
+            // Get the last poem from our client-side list
+            const currentPoem = poemList[poemList.length - 1];
+
+            const response = await fetch("/api/translate", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ text: currentPoem }),
+            });
+
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+
+            // Add the new translation to our client-side list
+            poemList.push(result.originalText);
+
+            const container = document.createElement("div");
+            container.className = "card";
+
+            // Display the poem lines
+            result.poem.forEach((line) => {
+              console.log("linesssss");
+              const lineDiv = document.createElement("div");
+              lineDiv.textContent = line;
+              container.appendChild(lineDiv);
+            });
+
+            if (document.getElementById(counter).firstChild) {
+              document
+                .getElementById(counter)
+                .children[0].replaceWith(container);
+            } else {
+              console.log("replacing");
+              document.getElementById(counter).appendChild(container);
+            }
+
+            counter += 1;
+
+            console.log(
+              `Generated poem ${counter - 2}, list size: ${
+                poemList.length
+              }, Counter: ${counter}`
+            );
+          } catch (error) {
+            console.error("Error fetching translation:", error);
+          }
+        })();
+      }, 5000);
+    </script>
+  </body>
+</html>
