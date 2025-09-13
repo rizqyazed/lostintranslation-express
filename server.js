@@ -68,25 +68,39 @@ const translate = new Translate({
 });
 
 async function translateText(text) {
-  let res = [text.replaceAll(/\r?\n/g, "\n").trim()];
-  // let res = "test\ning";
-  // console.log(res[0]);
+  let res = [text.trim()];
+
   try {
     for (let i = 0; i < 5; i++) {
       const random = Math.floor(Math.random() * lang.length);
       const language = lang[random];
       res = await translate.translate(res[0], language);
-      res[0] = res[0].replaceAll(/\r?\n/g, "\n").trim();
-      //   console.log("Translations: ", res[0]);
+      res[0] = res[0].trim();
     }
     res = await translate.translate(res[0], "en");
-    res[0] = res[0].replaceAll(/\r?\n/g, "\n").trim();
+    res[0] = res[0].trim();
 
-    // console.log(res[0]);
     return res[0];
   } catch (error) {
     console.log(`Error at translateText --> ${error}`);
+    return text; // Return original text if translation fails
   }
+}
+
+async function translatePoemLines(poemLines) {
+  const translatedLines = [];
+
+  for (const line of poemLines) {
+    if (line.trim()) {
+      // Only translate non-empty lines
+      const translatedLine = await translateText(line);
+      translatedLines.push(translatedLine);
+    } else {
+      translatedLines.push(line); // Keep empty lines as is
+    }
+  }
+
+  return translatedLines;
 }
 
 // Add middleware to parse JSON bodies
@@ -94,19 +108,19 @@ app.use(express.json());
 
 app.post("/api/translate", async (req, res) => {
   try {
-    const { text } = req.body;
-    if (!text) {
-      return res.status(400).json({ error: "Text is required" });
+    const { poemLines } = req.body;
+    if (!poemLines || !Array.isArray(poemLines)) {
+      return res.status(400).json({ error: "poemLines array is required" });
     }
 
-    const transPoem = await translateText(text);
-    const poemLines = transPoem
-      .split("\n")
-      .filter((line) => line.trim() !== "");
+    console.log("Received poem lines:", poemLines);
+
+    const translatedLines = await translatePoemLines(poemLines);
+
+    console.log("Translated poem lines:", translatedLines);
 
     res.status(200).json({
-      poem: poemLines,
-      originalText: transPoem,
+      poem: translatedLines,
     });
   } catch (error) {
     console.error("Translation error:", error);

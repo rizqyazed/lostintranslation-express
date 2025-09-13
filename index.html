@@ -57,9 +57,15 @@
       <div id="15"></div>
     </div>
     <script>
-      // Client-side list that resets on page reload
+      // Client-side list that resets on page reload - now using array format
       const poemList = [
-        "Oh, my love\nIf you were at the level of my madness,\nYou would cast away your jewelry,\nSell all your bracelets,\nAnd sleep in my eyes.",
+        [
+          "Oh, my love",
+          "If you were at the level of my madness,",
+          "You would cast away your jewelry,",
+          "Sell all your bracelets,",
+          "And sleep in my eyes.",
+        ],
       ];
 
       var counter = 2;
@@ -79,7 +85,7 @@
               headers: {
                 "Content-Type": "application/json",
               },
-              body: JSON.stringify({ text: currentPoem }),
+              body: JSON.stringify({ poemLines: currentPoem }),
             });
 
             if (!response.ok) {
@@ -88,15 +94,14 @@
 
             const result = await response.json();
 
-            // Add the new translation to our client-side list
-            poemList.push(result.originalText);
+            // Add the new translation to our client-side list as an array
+            poemList.push(result.poem);
 
             const container = document.createElement("div");
             container.className = "card";
 
             // Display the poem lines
             result.poem.forEach((line) => {
-              console.log("linesssss");
               const lineDiv = document.createElement("div");
               lineDiv.textContent = line;
               container.appendChild(lineDiv);
@@ -107,7 +112,6 @@
                 .getElementById(counter)
                 .children[0].replaceWith(container);
             } else {
-              console.log("replacing");
               document.getElementById(counter).appendChild(container);
             }
 
